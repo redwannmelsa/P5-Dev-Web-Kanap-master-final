@@ -1,14 +1,13 @@
 var pageType = window.location.href.includes('confirmation') ? true : false; //returns true on the confirmation page, else returns false
-const productArray = [];
 var localStorageIdArray = [];
 var contact = {};
+var productArray = [];
 const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 const nameRegex = /^[a-z ,.'-]+$/i
 const addressRegex = /^\s*\S+(?:\s+\S+){2}/
 const cityRegex = /^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$/
 
 
-// ! add feature: price updates depending on how number of item -- rn it shows the price for one item
 // adds the order number to the confirmation page HTML
 if (pageType) {
     var str = window.location.href;
@@ -40,7 +39,6 @@ if (pageType === false) { // this if statements only allows the rest of the code
                 .then((data) => {
                     let product = data;
                     let productId = product._id;
-                    generateProductArray(productId); //adds every item's ID to an array to be passed into the POST request body
                     document.getElementById("cart__items").innerHTML += 
                         `<article id="article_${key}" class="cart__item" data-id="${product._id}" data-color="${localStorageIdArray[key].color}">
                         <div class="cart__item__img">
@@ -64,7 +62,7 @@ if (pageType === false) { // this if statements only allows the rest of the code
                         </div>
                         </article>`;
                 })
-        }  
+        }
     }
 
     // this function generates the user selected items on the cart page
@@ -75,11 +73,6 @@ if (pageType === false) { // this if statements only allows the rest of the code
         };
 
     window.addEventListener("onload", generateCart())
-
-    // creates array of products ID to be used in POST method body
-    function generateProductArray(productId) {
-        productArray.push(productId);
-    }
 
     // this function returns true if all the user inputs are valid
     // else it returns false
@@ -117,7 +110,8 @@ if (pageType === false) { // this if statements only allows the rest of the code
     //on order click, sends user info and product array and redirects user to confirmation page with order number in url
     document.getElementById("order").addEventListener("click", function order() {
         if (validateUserInput()) { // this checks that the form inputs are valid before running the POST method
-            fetch("http://localhost:3000/api/products/order", {
+            if(localStorage.length > 1) {
+                fetch("http://localhost:3000/api/products/order", {
                 method: "POST",
                 body: JSON.stringify(
                     {contact: {
@@ -133,14 +127,32 @@ if (pageType === false) { // this if statements only allows the rest of the code
                 headers: {
                     "content-type": "application/json"
                 }
-            })
-            .then (response => response.json())
-            .then ((data) => {
-                var confirmationData = data;
-                window.location.href = `http://127.0.0.1:5500/front/html/confirmation.html?orderId=${confirmationData.orderId}`
-            });
+                })
+                .then (response => response.json())
+                .then ((data) => {
+                    var confirmationData = data;
+                    window.location.href = `http://127.0.0.1:5500/front/html/confirmation.html?orderId=${confirmationData.orderId}`
+                });
+            } else {
+                alert("Votre panier est vide")
+            }       
         }
     });
+
+    // this function generates the product array sent to the API when ordering
+    function generateProductArray() {
+        localStorageIdArray = []; // avoids adding to existing array when modifiy or delete function runs
+        for (let key in localStorage) {
+            if (localStorage.getItem(key) != null) {
+                if (JSON.parse(localStorage.getItem(key)).id != "a") { // this makes the loop ignore the localStorage initializing key
+                    productArray.push(JSON.parse(localStorage.getItem(key)).id)
+                };
+                
+            };
+        };
+        return productArray;
+    };
+    
 
     //on click prompts user to delete item from cart
     function deleteItemFromCart(key) {
@@ -182,6 +194,7 @@ if (pageType === false) { // this if statements only allows the rest of the code
     function calculatingTotals() {
         var totalItems = 0;
         var totalPrice = 0;
+        console.log(localStorageIdArray)
         for (let key in localStorage) {
             if (JSON.parse(localStorage.getItem(key)).id !== "a") { // ignores the initializer localStorage
             fetch(`http://localhost:3000/api/products/${JSON.parse(localStorage.getItem(key)).id}`) //waits for the first key before running the second key => forces right order to display
@@ -195,6 +208,9 @@ if (pageType === false) { // this if statements only allows the rest of the code
             totalPrice += product.price * parseInt(JSON.parse(localStorage.getItem(key)).quantity);
             document.getElementById("totalPrice").innerHTML = `${totalPrice}`;
                 })
+            } else {
+                document.getElementById("totalQuantity").innerHTML = 0;
+                document.getElementById("totalPrice").innerHTML = 0;
             }
         }
     }
