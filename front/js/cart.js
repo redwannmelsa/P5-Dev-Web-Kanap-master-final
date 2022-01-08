@@ -111,6 +111,7 @@ if (pageType === false) { // this if statements only allows the rest of the code
     document.getElementById("order").addEventListener("click", function order() {
         if (validateUserInput()) { // this checks that the form inputs are valid before running the POST method
             if(localStorage.length > 1) {
+                generateProductArray(); // this refreshes the array of products to the current cart -- takes into account user modifications/deletions
                 fetch("http://localhost:3000/api/products/order", {
                 method: "POST",
                 body: JSON.stringify(
