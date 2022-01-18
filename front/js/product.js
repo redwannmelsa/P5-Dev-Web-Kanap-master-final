@@ -80,8 +80,11 @@ fetch(`http://localhost:3000/api/products/${id}`)
 // when color is clicked in the drop down menu, sets the variable to the selected color
 // will be pushed to localStorage along with product ID and quantity if add to cart button is clicked afterwards
 document.querySelector("#colors").addEventListener("click", function colorPicker(){
+    if (this.value === "--SVP, choisissez une couleur --") {
+        return colorVar = "";
+    }
     colorVar = this.value
-    document.querySelector("#quantity").value = 0;
+    document.querySelector("#quantity").value = 1;
 
     // Same as the function commented out above, this loop sets the input to the current quantity of the selected product in the localStorage (the user's cart)
     // Commented out to change the website behaviour to a "input how many articles you want, then press add to cart" instead of this input used as a display/input 
@@ -118,7 +121,7 @@ document.getElementById("addToCart").addEventListener("click", function addToCar
                             "color": colorVar,
                             "quantity": newQuantity
                         }
-                        document.getElementById("quantity").value = 0;
+                        document.getElementById("quantity").value = 1;
                         return localStorage.setItem(i, JSON.stringify(updatedObject));
                     }
                 }
@@ -141,7 +144,7 @@ document.getElementById("addToCart").addEventListener("click", function addToCar
                 }
             }
             localStorage.setItem(keyValue, JSON.stringify(newObject));
-            document.getElementById("quantity").value = 0;
+            document.getElementById("quantity").value = 1;
         }
     }
 });

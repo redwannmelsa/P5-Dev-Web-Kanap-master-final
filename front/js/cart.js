@@ -2,6 +2,7 @@ var pageType = window.location.href.includes('confirmation') ? true : false; //r
 var localStorageIdArray = [];
 var contact = {};
 var productArray = [];
+// a modif adresse
 const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 const nameRegex = /^[a-z ,.'-]+$/i
 const addressRegex = /^\s*\S+(?:\s+\S+){2}/
@@ -183,7 +184,7 @@ if (pageType === false) { // this if statements only allows the rest of the code
                             "quantity": document.getElementById(`input${key}`).value
                             }
                         localStorage.setItem(index, JSON.stringify(updatedCartProduct)); //changes the localstorage object to updatedCartProduct object
-                        document.querySelector(`#item_price_${key}`).innerHTML = parseInt(document.getElementById(`input${key}`).value) * product.price
+                        document.querySelector(`#item_price_${key}`).innerHTML = parseInt(document.getElementById(`input${key}`).value) * product.price + ' €'
                         calculatingTotals();
                     })
             }
